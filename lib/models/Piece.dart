@@ -12,4 +12,11 @@ class Piece {
   Piece clone() {
     return new Piece(notation: notation, role: role, color: color);
   }
+
+  static bool equal(Piece a, Piece b) {
+    if (a == null && b == null) return true;
+    if (a == null && b != null) return false;
+    if (a != null && b == null) return false;
+    return a.role == b.role && a.color == b.color;
+  }
 }
