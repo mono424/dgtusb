@@ -3,7 +3,8 @@
 The dgtusb flutter package allows you to quickly get you dgt-usb-board connected
 to your Android application.
 
-![ezgif com-gif-maker](https://user-images.githubusercontent.com/17506411/114317339-e856a180-9b07-11eb-8b43-e9f70c9dc209.gif)
+![preview](https://user-images.githubusercontent.com/17506411/114317384-1a680380-9b08-11eb-8484-b263743d43f6.gif)
+
 
 ## Getting Started
 
