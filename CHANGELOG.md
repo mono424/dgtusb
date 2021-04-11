@@ -1,3 +1,7 @@
+## [0.0.1+3] - Added preview gif
+
+* Added preview gif
+
 ## [0.0.1+2] - Added example
 
 * Added working example
