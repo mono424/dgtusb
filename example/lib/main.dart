@@ -15,22 +15,20 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: MyHomePage(),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
-
-  final String title;
+  MyHomePage({Key key}) : super(key: key);
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  Stream<FieldUpdate> updateStream;
+  DGTBoard connectedBoard;
 
   void connect() async {
     List<UsbDevice> devices = await UsbSerial.listDevices();
@@ -45,9 +43,9 @@ class _MyHomePageState extends State<MyHomePage> {
           " Version: " +
           nBoard.getVersion());
 
-      // set update stream
+      // set connected board
       setState(() {
-        updateStream = nBoard.getBoardDetailedUpdateStream();
+        connectedBoard = nBoard;
       });
 
       // set board to update mode
@@ -59,22 +57,34 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text("dgtusb example"),
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          TextButton(
-            child: Text("Try to connect to board"),
-            onPressed: connect,
-          ),
-          updateStream == null
-              ? Text("Not connected to board")
-              : StreamBuilder(
-                  stream: updateStream,
-                  builder: (context, AsyncSnapshot<FieldUpdate> snapshot) {
-                    return Text("Last move: " + snapshot.data.getNotation());
-                  })
+          Center(child: TextButton(
+            child: Text(connectedBoard == null ? "Try to connect to board" : "Connected"),
+            onPressed: connectedBoard == null ? connect : null,
+          )),
+          Center( child: StreamBuilder(
+            stream: connectedBoard?.getBoardDetailedUpdateStream(),
+            builder: (context, AsyncSnapshot<DetailedFieldUpdate> snapshot) {
+              if (!snapshot.hasData) return Text("-");
+
+              DetailedFieldUpdate fieldUpdate = snapshot.data;
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("Last Update: "),
+                  Text("Square: " + fieldUpdate.field),
+                  Text("Action: " + fieldUpdate.action.toString()),
+                  Text("Piece: " + fieldUpdate.piece.role + " (" + fieldUpdate.piece.color + ")"),
+                  Text("Notation: " + fieldUpdate.getNotation()),
+                ],
+              );
+            }
+          )),
         ],
       ),
     );
