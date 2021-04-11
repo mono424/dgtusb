@@ -18,11 +18,15 @@ import 'package:dgtusb/dgtusb.dart';
 import 'package:usb_serial/usb_serial.dart';
 ```
 
-add to `android\app\build.gradle`
+add compileOptions to `android\app\build.gradle`
 ```
-compileOptions {
-    sourceCompatibility 1.8
-    targetCompatibility 1.8
+android {
+    ...
+    compileOptions {
+        sourceCompatibility 1.8
+        targetCompatibility 1.8
+    }
+    ...
 }
 ```
 you can do optional more steps to allow usb related features,
@@ -32,19 +36,18 @@ for that please take a look at the package we depend on:
 
 Connect to a connected board and listen to its events:
 ```dart
-// Get dgt devices
 List<UsbDevice> devices = await UsbSerial.listDevices();
-List<UsbDevice> dgtDevices = devices.where((d) => d.vid == 1115)).toList();
+List<UsbDevice> dgtDevices = devices.where((d) => d.vid == 1115).toList();
 
 if (dgtDevices.length > 0) {
     // connect to board and initialize
-    DGTBoard nBoard = new DGTBoard(dgtDevices[0]);
+    DGTBoard nBoard = new DGTBoard(await dgtDevices[0].create());
     await nBoard.init();
     print("DGTBoard connected - SerialNumber: " + nBoard.getSerialNumber() + " Version: " + nBoard.getVersion());
     
     // listen to update stream
-    nBoard.getBoardDetailedUpdateStream().listen((FieldUpdate update) {
-      print(update.getNotation());
+    nBoard.getBoardDetailedUpdateStream().listen((update) {
+        print(update.getNotation());
     });
 
     // set board to update mode
