@@ -1,14 +1,19 @@
 # dgtusb
 
-A new Flutter package project.
+The dgtusb flutter package allows you to quickly get you dgt-usb-board connected
+to your Android application.
 
-## Getting Started
+## In action
 
-This project is a starting point for a Dart
-[package](https://flutter.dev/developing-packages/),
-a library module containing code that can be shared easily across
-multiple Flutter or Dart projects.
+To get a quick look, it is used in the follwoing project, which is not open source yet.
 
-For help getting started with Flutter, view our 
-[online documentation](https://flutter.dev/docs), which offers tutorials, 
-samples, guidance on mobile development, and a full API reference.
+https://khadimfall.com/p/white-pawn
+
+## Updates soon
+
+sorry for the lack of information, i will soon:
+
+- update this readme
+- add an example
+- add some tests maybe
+- make it crossplatform compatible (currently it depends on usb_serial package which makes it android exclusive. Linux, OSX and Windows should be possible aswell)
