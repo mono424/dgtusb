@@ -7,7 +7,7 @@ to your Android application.
 
 To get a quick look, it is used in the follwoing project, which is not open source yet.
 
-https://khadimfall.com/p/white-pawn
+https://khad.im/p/white-pawn
 
 ## Updates soon
 
