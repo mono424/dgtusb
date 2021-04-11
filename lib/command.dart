@@ -10,14 +10,70 @@ import 'package:dgtusb/dgtdecode.dart';
 
 abstract class DGTProtocol {
   static const List<String> SQUARES = [
-    'h1', 'g1', 'f1', 'e1', 'd1', 'c1', 'b1', 'a1',
-    'h2', 'g2', 'f2', 'e2', 'd2', 'c2', 'b2', 'a2',
-    'h3', 'g3', 'f3', 'e3', 'd3', 'c3', 'b3', 'a3',
-    'h4', 'g4', 'f4', 'e4', 'd4', 'c4', 'b4', 'a4',
-    'h5', 'g5', 'f5', 'e5', 'd5', 'c5', 'b5', 'a5',
-    'h6', 'g6', 'f6', 'e6', 'd6', 'c6', 'b6', 'a6',
-    'h7', 'g7', 'f7', 'e7', 'd7', 'c7', 'b7', 'a7',
-    'h8', 'g8', 'f8', 'e8', 'd8', 'c8', 'b8', 'a8',
+    'h1',
+    'g1',
+    'f1',
+    'e1',
+    'd1',
+    'c1',
+    'b1',
+    'a1',
+    'h2',
+    'g2',
+    'f2',
+    'e2',
+    'd2',
+    'c2',
+    'b2',
+    'a2',
+    'h3',
+    'g3',
+    'f3',
+    'e3',
+    'd3',
+    'c3',
+    'b3',
+    'a3',
+    'h4',
+    'g4',
+    'f4',
+    'e4',
+    'd4',
+    'c4',
+    'b4',
+    'a4',
+    'h5',
+    'g5',
+    'f5',
+    'e5',
+    'd5',
+    'c5',
+    'b5',
+    'a5',
+    'h6',
+    'g6',
+    'f6',
+    'e6',
+    'd6',
+    'c6',
+    'b6',
+    'a6',
+    'h7',
+    'g7',
+    'f7',
+    'e7',
+    'd7',
+    'c7',
+    'b7',
+    'a7',
+    'h8',
+    'g8',
+    'f8',
+    'e8',
+    'd8',
+    'c8',
+    'b8',
+    'a8',
   ];
 
   static const Map<int, Piece> PIECES = {
@@ -34,9 +90,11 @@ abstract class DGTProtocol {
     0xa: Piece(notation: 'b', role: 'bishop', color: 'black'),
     0xb: Piece(notation: 'k', role: 'king', color: 'black'),
     0xc: Piece(notation: 'q', role: 'queen', color: 'black'),
-    0xd: null, /* Magic piece: Draw */
-    0xe: null, /* Magic piece: White win */
-    0xf: null  /* Magic piece: Black win */
+    0xd: null,
+    /* Magic piece: Draw */
+    0xe: null,
+    /* Magic piece: White win */
+    0xf: null /* Magic piece: Black win */
   };
 }
 
@@ -70,10 +128,9 @@ abstract class Command<T> {
   Future<T> getReponse(Stream<DGTMessage> inputStream) async {
     if (_answer == null) return null;
     DGTMessage message = await inputStream
-      .firstWhere((DGTMessage msg) => msg.getCode() == _answer.getCode());
+        .firstWhere((DGTMessage msg) => msg.getCode() == _answer.getCode());
     return _answer.process(message.getMessage());
   }
-
 }
 
 // Answers from board
@@ -110,7 +167,8 @@ class AnswerFieldUpdate extends Answer<FieldUpdate> {
   final int _code = 0x0e;
 
   FieldUpdate process(Uint8List msg) {
-    return FieldUpdate(field: DGTProtocol.SQUARES[msg[0]], piece: DGTProtocol.PIECES[msg[1]]);
+    return FieldUpdate(
+        field: DGTProtocol.SQUARES[msg[0]], piece: DGTProtocol.PIECES[msg[1]]);
   }
 }
 

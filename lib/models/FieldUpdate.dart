@@ -1,8 +1,6 @@
 import 'package:dgtusb/models/Piece.dart';
 
-enum FieldUpdateAction {
-  pickup, setdown
-}
+enum FieldUpdateAction { pickup, setdown }
 
 class FieldUpdate {
   final String field;
@@ -24,7 +22,8 @@ class FieldUpdate {
 class DetailedFieldUpdate extends FieldUpdate {
   final FieldUpdateAction action;
 
-  DetailedFieldUpdate({field, piece, this.action}) : super(field: field, piece: piece);
+  DetailedFieldUpdate({field, piece, this.action})
+      : super(field: field, piece: piece);
 
   String getNotation({bool takes = false, String from = ""}) {
     if (piece == null || action == FieldUpdateAction.pickup) return "";
@@ -33,6 +32,9 @@ class DetailedFieldUpdate extends FieldUpdate {
 
   @override
   String toString() {
-    return field + ": " + piece.toString() + (action == FieldUpdateAction.pickup ? " (Pickup)" : " (Set)");
+    return field +
+        ": " +
+        piece.toString() +
+        (action == FieldUpdateAction.pickup ? " (Pickup)" : " (Set)");
   }
 }

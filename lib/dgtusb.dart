@@ -10,7 +10,6 @@ import 'package:dgtusb/models/Piece.dart';
 import 'package:usb_serial/usb_serial.dart';
 
 class DGTBoard {
-
   final UsbPort _port;
   StreamController _inputStreamController;
   Stream<DGTMessage> _inputStream;
@@ -44,8 +43,10 @@ class DGTBoard {
   }
 
   void _handleInputStream(Uint8List chunk) {
-    if (_buffer == null) _buffer = chunk.toList();
-    else _buffer.addAll(chunk);
+    if (_buffer == null)
+      _buffer = chunk.toList();
+    else
+      _buffer.addAll(chunk);
 
     try {
       DGTMessage message = DGTMessage.parse(Uint8List.fromList(_buffer));
@@ -67,12 +68,12 @@ class DGTBoard {
   }
 
   List<int> skipBadBytes(int start, List<int> buffer) {
-      int startOfGoodBytes = start;
-      for(; startOfGoodBytes < buffer.length; startOfGoodBytes++) {
-          if((buffer[startOfGoodBytes] & 0x80) != 0) break;
-      }
-      if (startOfGoodBytes == buffer.length) return [];
-      return buffer.sublist(startOfGoodBytes, buffer.length - startOfGoodBytes);
+    int startOfGoodBytes = start;
+    for (; startOfGoodBytes < buffer.length; startOfGoodBytes++) {
+      if ((buffer[startOfGoodBytes] & 0x80) != 0) break;
+    }
+    if (startOfGoodBytes == buffer.length) return [];
+    return buffer.sublist(startOfGoodBytes, buffer.length - startOfGoodBytes);
   }
 
   Future<void> reset() async {
@@ -109,18 +110,21 @@ class DGTBoard {
 
   Stream<FieldUpdate> getBoardUpdateStream() {
     return getInputStream()
-      .where((DGTMessage msg) => msg.getCode() == AnswerFieldUpdate().getCode())
-      .map((DGTMessage msg) => AnswerFieldUpdate().process(msg.getMessage()));
+        .where(
+            (DGTMessage msg) => msg.getCode() == AnswerFieldUpdate().getCode())
+        .map((DGTMessage msg) => AnswerFieldUpdate().process(msg.getMessage()));
   }
 
   Stream<DetailedFieldUpdate> getBoardDetailedUpdateStream() {
     return getBoardUpdateStream().map((FieldUpdate f) {
-        if (f.piece == null) {
-          return DetailedFieldUpdate(piece: _lastSeen[f.field], field: f.field, action: FieldUpdateAction.pickup);
-        }
-        return DetailedFieldUpdate(piece: f.piece, field: f.field, action: FieldUpdateAction.setdown);
-      }).asBroadcastStream();
+      if (f.piece == null) {
+        return DetailedFieldUpdate(
+            piece: _lastSeen[f.field],
+            field: f.field,
+            action: FieldUpdateAction.pickup);
+      }
+      return DetailedFieldUpdate(
+          piece: f.piece, field: f.field, action: FieldUpdateAction.setdown);
+    }).asBroadcastStream();
   }
-
-
 }

@@ -37,18 +37,21 @@ class _MyHomePageState extends State<MyHomePage> {
     List<UsbDevice> dgtDevices = devices.where((d) => d.vid == 1115).toList();
 
     if (dgtDevices.length > 0) {
-        // connect to board and initialize
-        DGTBoard nBoard = new DGTBoard(await dgtDevices[0].create());
-        await nBoard.init();
-        print("DGTBoard connected - SerialNumber: " + nBoard.getSerialNumber() + " Version: " + nBoard.getVersion());
-        
-        // set update stream
-        setState(() {
-          updateStream = nBoard.getBoardDetailedUpdateStream();
-        });
+      // connect to board and initialize
+      DGTBoard nBoard = new DGTBoard(await dgtDevices[0].create());
+      await nBoard.init();
+      print("DGTBoard connected - SerialNumber: " +
+          nBoard.getSerialNumber() +
+          " Version: " +
+          nBoard.getVersion());
 
-        // set board to update mode
-        nBoard.setBoardToUpdateMode();
+      // set update stream
+      setState(() {
+        updateStream = nBoard.getBoardDetailedUpdateStream();
+      });
+
+      // set board to update mode
+      nBoard.setBoardToUpdateMode();
     }
   }
 
@@ -61,10 +64,17 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          TextButton(child: Text("Try to connect to board"), onPressed: connect,),
-          updateStream == null ? Text("Not connected to board") : StreamBuilder(stream: updateStream, builder: (context, AsyncSnapshot<FieldUpdate> snapshot) {
-            return Text("Last move: " + snapshot.data.getNotation());
-          })
+          TextButton(
+            child: Text("Try to connect to board"),
+            onPressed: connect,
+          ),
+          updateStream == null
+              ? Text("Not connected to board")
+              : StreamBuilder(
+                  stream: updateStream,
+                  builder: (context, AsyncSnapshot<FieldUpdate> snapshot) {
+                    return Text("Last move: " + snapshot.data.getNotation());
+                  })
         ],
       ),
     );
