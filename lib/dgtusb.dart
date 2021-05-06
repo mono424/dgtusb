@@ -14,6 +14,7 @@ import 'package:dgtusb/protocol/commands/GetClockVersion.dart';
 import 'package:dgtusb/protocol/commands/GetSerialNumber.dart';
 import 'package:dgtusb/protocol/commands/GetVersion.dart';
 import 'package:dgtusb/protocol/commands/SendClockBeep.dart';
+import 'package:dgtusb/protocol/commands/SendClockSet.dart';
 import 'package:dgtusb/protocol/commands/SendReset.dart';
 import 'package:dgtusb/protocol/commands/SendUpdateBoard.dart';
 import 'package:usb_serial/usb_serial.dart';
@@ -125,8 +126,12 @@ class DGTBoard {
     return GetClockVersionCommand().request(_port, _inputStream);
   }
 
-  void clockBeep(int duration) {
+  void clockBeep(Duration duration) {
     SendClockBeepCommand(duration).send(_port);
+  }
+  
+  void clockSet(Duration timeLeft, Duration timeRight, bool leftIsRunning, bool rightIsRunning, bool pause, bool toggleOnLever) {
+    SendClockSetCommand(timeLeft, timeRight, leftIsRunning, rightIsRunning, pause, toggleOnLever).send(_port);
   }
 
   /*

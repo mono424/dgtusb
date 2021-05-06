@@ -64,7 +64,29 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _sendClockBeep() {
-    connectedBoard.clockBeep(15);
+    connectedBoard.clockBeep(Duration(milliseconds: 200));
+  }
+
+  void _testSetClock1() {
+    connectedBoard.clockSet(
+      Duration(minutes: 4, seconds: 20),
+      Duration(minutes: 20, seconds: 4),
+      false,
+      false,
+      false,
+      true
+    );
+  }
+
+  void _testSetClock2() {
+    connectedBoard.clockSet(
+      Duration(minutes: 4, seconds: 20),
+      Duration(minutes: 20, seconds: 4),
+      false,
+      true,
+      false,
+      false
+    );
   }
 
   @override
@@ -106,14 +128,16 @@ class _MyHomePageState extends State<MyHomePage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 TextButton(child: Text("Get Info"), onPressed: () => _getClockInfo()),
-                TextButton(child: Text("Send Beep"), onPressed: () => _sendClockBeep())
+                TextButton(child: Text("Send Beep"), onPressed: () => _sendClockBeep()),
+                TextButton(child: Text("Test Set 1"), onPressed: () => _testSetClock1()),
+                TextButton(child: Text("Test Set 2"), onPressed: () => _testSetClock2())
               ],
             ),
           ] : []),
           ...(_clockInfo != null ? [
               Text("Clock Connected: " + (_clockInfo.flags.clockConnected ? "Yes" : "No")),
               Text("Clock Running: " + (_clockInfo.flags.clockRunning ? "Yes" : "No")),
-              Text("Clock Toggle: " + (_clockInfo.flags.rightHigh ? "Left" : "Right")),
+              Text("Clock lever: " + (_clockInfo.flags.rightHigh ? "Left" : "Right")),
               Text("Clock Battery: " + (_clockInfo.flags.batteryLow ? "Low" : "Normal")),
               Text("Clock LeftToMove: " + (_clockInfo.flags.leftToMove ? "Yes" : "No")),
               Text("Clock RightToMove: " + (_clockInfo.flags.rightToMove ? "Yes" : "No")),
