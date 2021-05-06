@@ -3,10 +3,17 @@ library dgtusb;
 import 'dart:async';
 import 'dart:typed_data';
 
-import 'package:dgtusb/command.dart';
 import 'package:dgtusb/dgtdecode.dart';
 import 'package:dgtusb/models/FieldUpdate.dart';
 import 'package:dgtusb/models/Piece.dart';
+import 'package:dgtusb/protocol/commands/FieldUpdate.dart';
+import 'package:dgtusb/protocol/commands/GetBoard.dart';
+import 'package:dgtusb/protocol/commands/GetClockVersion.dart';
+import 'package:dgtusb/protocol/commands/GetSerialNumber.dart';
+import 'package:dgtusb/protocol/commands/GetVersion.dart';
+import 'package:dgtusb/protocol/commands/SendClockBeep.dart';
+import 'package:dgtusb/protocol/commands/SendReset.dart';
+import 'package:dgtusb/protocol/commands/SendUpdateBoard.dart';
 import 'package:usb_serial/usb_serial.dart';
 
 class DGTBoard {
@@ -43,6 +50,7 @@ class DGTBoard {
   }
 
   void _handleInputStream(Uint8List chunk) {
+    print("received chunk ...");
     if (_buffer == null)
       _buffer = chunk.toList();
     else
@@ -77,10 +85,10 @@ class DGTBoard {
   }
 
   Future<void> reset() async {
-    await CommandSendReset().send(_port);
-    _serialNumber = await CommandGetSerialNumber().request(_port, _inputStream);
-    _version = await CommandGetVersion().request(_port, _inputStream);
-    _boardState = await CommandGetBoard().request(_port, _inputStream);
+    await SendResetCommand().send(_port);
+    _serialNumber = await GetSerialNumberCommand().request(_port, _inputStream);
+    _version = await GetVersionCommand().request(_port, _inputStream);
+    _boardState = await GetBoardCommand().request(_port, _inputStream);
     _lastSeen = getBoardState();
     getBoardDetailedUpdateStream().listen(_handleBoardUpdate);
   }
@@ -101,18 +109,30 @@ class DGTBoard {
   }
 
   /*
+   * DGT Clock
+   */
+
+  Future<String> getClockVersion() {
+    return GetClockVersionCommand().request(_port, _inputStream);
+  }
+
+  void clockBeep(int duration) {
+    SendClockBeepCommand(duration).send(_port);
+  }
+
+  /*
    * Board Modes - Sets the board to the desired mode
    */
 
   Future<void> setBoardToUpdateMode() async {
-    await CommandSendUpdateBoard().send(_port);
+    await SendUpdateBoardCommand().send(_port);
   }
 
   Stream<FieldUpdate> getBoardUpdateStream() {
     return getInputStream()
         .where(
-            (DGTMessage msg) => msg.getCode() == AnswerFieldUpdate().getCode())
-        .map((DGTMessage msg) => AnswerFieldUpdate().process(msg.getMessage()));
+            (DGTMessage msg) => msg.getCode() == FieldUpdateAnswer().code)
+        .map((DGTMessage msg) => FieldUpdateAnswer().process(msg.getMessage()));
   }
 
   Stream<DetailedFieldUpdate> getBoardDetailedUpdateStream() {

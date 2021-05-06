@@ -30,6 +30,8 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   DGTBoard connectedBoard;
 
+  String _clockVersion = "-";
+
   void connect() async {
     List<UsbDevice> devices = await UsbSerial.listDevices();
     List<UsbDevice> dgtDevices = devices.where((d) => d.vid == 1115).toList();
@@ -51,6 +53,17 @@ class _MyHomePageState extends State<MyHomePage> {
       // set board to update mode
       nBoard.setBoardToUpdateMode();
     }
+  }
+
+  void _getClockVersion() async {
+    String clockVersion = await connectedBoard.getClockVersion();
+    setState(() {
+      _clockVersion = clockVersion;
+    });
+  }
+
+  void _sendClockBeep() {
+    connectedBoard.clockBeep(5);
   }
 
   @override
@@ -85,6 +98,18 @@ class _MyHomePageState extends State<MyHomePage> {
               );
             }
           )),
+          ...(connectedBoard != null ? [
+            SizedBox(height: 34),
+            Text("Clock Tests"),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                TextButton(child: Text("Get Version"), onPressed: () => _getClockVersion()),
+                TextButton(child: Text("Send Beep"), onPressed: () => _sendClockBeep())
+              ],
+            ),
+            Text("Clock Version: " + _clockVersion),
+          ] : [])
         ],
       ),
     );

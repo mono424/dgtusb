@@ -1,0 +1,1 @@
+enum ClockAnswerType { display, button, version, setNRun, beep }
