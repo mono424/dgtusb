@@ -32,6 +32,7 @@ class _MyHomePageState extends State<MyHomePage> {
   DGTBoard connectedBoard;
 
   ClockInfo _clockInfo;
+  TextEditingController _clockAsciiTextController = new TextEditingController();
 
   void connect() async {
     List<UsbDevice> devices = await UsbSerial.listDevices();
@@ -54,6 +55,35 @@ class _MyHomePageState extends State<MyHomePage> {
       // set board to update mode
       nBoard.setBoardToUpdateMode();
     }
+  }
+
+  void _showClockAsciiDialog(context) async {
+    String text = await showDialog(context: context, builder: (context) {
+      return AlertDialog(
+        contentPadding: EdgeInsets.all(16.0),
+        content: Row(
+          children: <Widget>[
+            Expanded(
+              child: TextField(
+                controller: _clockAsciiTextController,
+                autofocus: true,
+                decoration: InputDecoration(
+                    labelText: 'Text', hintText: 'Write something'),
+                ),
+            )
+          ],
+        ),
+        actions: <Widget>[
+          TextButton(
+              child: Text('Send'),
+              onPressed: () {
+                Navigator.pop(context, _clockAsciiTextController.text);
+              })
+        ],
+      );
+    });
+
+    connectedBoard.clockText(text, beep: Duration(milliseconds: 200));
   }
 
   void _getClockInfo() async {
@@ -130,7 +160,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 TextButton(child: Text("Get Info"), onPressed: () => _getClockInfo()),
                 TextButton(child: Text("Send Beep"), onPressed: () => _sendClockBeep()),
                 TextButton(child: Text("Test Set 1"), onPressed: () => _testSetClock1()),
-                TextButton(child: Text("Test Set 2"), onPressed: () => _testSetClock2())
+                TextButton(child: Text("Send Text"), onPressed: () => _showClockAsciiDialog(context))
               ],
             ),
           ] : []),
