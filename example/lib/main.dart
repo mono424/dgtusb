@@ -1,4 +1,5 @@
 import 'package:dgtusb/models/FieldUpdate.dart';
+import 'package:dgtusb/models/ClockInfo.dart';
 import 'package:flutter/material.dart';
 import 'package:dgtusb/dgtusb.dart';
 import 'package:usb_serial/usb_serial.dart';
@@ -30,7 +31,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   DGTBoard connectedBoard;
 
-  String _clockVersion = "-";
+  ClockInfo _clockInfo;
 
   void connect() async {
     List<UsbDevice> devices = await UsbSerial.listDevices();
@@ -55,15 +56,15 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  void _getClockVersion() async {
-    String clockVersion = await connectedBoard.getClockVersion();
+  void _getClockInfo() async {
+    ClockInfo clockInfo = await connectedBoard.getClockInfo();
     setState(() {
-      _clockVersion = clockVersion;
+      _clockInfo = clockInfo;
     });
   }
 
   void _sendClockBeep() {
-    connectedBoard.clockBeep(5);
+    connectedBoard.clockBeep(15);
   }
 
   @override
@@ -104,11 +105,26 @@ class _MyHomePageState extends State<MyHomePage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                TextButton(child: Text("Get Version"), onPressed: () => _getClockVersion()),
+                TextButton(child: Text("Get Info"), onPressed: () => _getClockInfo()),
                 TextButton(child: Text("Send Beep"), onPressed: () => _sendClockBeep())
               ],
             ),
-            Text("Clock Version: " + _clockVersion),
+          ] : []),
+          ...(_clockInfo != null ? [
+              Text("Clock Connected: " + (_clockInfo.flags.clockConnected ? "Yes" : "No")),
+              Text("Clock Running: " + (_clockInfo.flags.clockRunning ? "Yes" : "No")),
+              Text("Clock Toggle: " + (_clockInfo.flags.rightHigh ? "Left" : "Right")),
+              Text("Clock Battery: " + (_clockInfo.flags.batteryLow ? "Low" : "Normal")),
+              Text("Clock LeftToMove: " + (_clockInfo.flags.leftToMove ? "Yes" : "No")),
+              Text("Clock RightToMove: " + (_clockInfo.flags.rightToMove ? "Yes" : "No")),
+              Text("Clock Left Player Time: " + _clockInfo.left.time.toString()),
+              Text("Clock Left Player FinalFlag: " + (_clockInfo.left.flags.finalFlag ? "Yes" : "No")),
+              Text("Clock Left Player FlagFlag: " + (_clockInfo.left.flags.flag ? "Yes" : "No")),
+              Text("Clock Left Player TimePerMoveFlag: " + (_clockInfo.left.flags.timePerMove ? "Yes" : "No")),
+              Text("Clock Right Player Time: " + _clockInfo.right.time.toString()),
+              Text("Clock Right Player FinalFlag: " + (_clockInfo.right.flags.finalFlag ? "Yes" : "No")),
+              Text("Clock Right Player FlagFlag: " + (_clockInfo.right.flags.flag ? "Yes" : "No")),
+              Text("Clock Right Player TimePerMoveFlag: " + (_clockInfo.right.flags.timePerMove ? "Yes" : "No")),
           ] : [])
         ],
       ),

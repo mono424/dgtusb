@@ -4,10 +4,12 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:dgtusb/dgtdecode.dart';
+import 'package:dgtusb/models/ClockInfo.dart';
 import 'package:dgtusb/models/FieldUpdate.dart';
 import 'package:dgtusb/models/Piece.dart';
 import 'package:dgtusb/protocol/commands/FieldUpdate.dart';
 import 'package:dgtusb/protocol/commands/GetBoard.dart';
+import 'package:dgtusb/protocol/commands/GetClockInfo.dart';
 import 'package:dgtusb/protocol/commands/GetClockVersion.dart';
 import 'package:dgtusb/protocol/commands/GetSerialNumber.dart';
 import 'package:dgtusb/protocol/commands/GetVersion.dart';
@@ -108,11 +110,18 @@ class DGTBoard {
     return clone;
   }
 
+  Future<ClockInfo> getClockInfo() {
+    return GetClockInfoCommand().request(_port, _inputStream);
+  }
+
   /*
    * DGT Clock
    */
 
-  Future<String> getClockVersion() {
+  /*
+   * Todo: its not working somehow
+   */
+  Future<String> getClockVersion() async {
     return GetClockVersionCommand().request(_port, _inputStream);
   }
 
