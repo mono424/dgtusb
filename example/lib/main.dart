@@ -102,20 +102,9 @@ class _MyHomePageState extends State<MyHomePage> {
       Duration(minutes: 4, seconds: 20),
       Duration(minutes: 20, seconds: 4),
       false,
-      false,
-      false,
-      true
-    );
-  }
-
-  void _testSetClock2() {
-    connectedBoard.clockSet(
-      Duration(minutes: 4, seconds: 20),
-      Duration(minutes: 20, seconds: 4),
-      false,
       true,
       false,
-      false
+      true
     );
   }
 

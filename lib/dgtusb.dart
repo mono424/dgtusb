@@ -17,7 +17,9 @@ import 'package:dgtusb/protocol/commands/SendClockAscii.dart';
 import 'package:dgtusb/protocol/commands/SendClockBeep.dart';
 import 'package:dgtusb/protocol/commands/SendClockSet.dart';
 import 'package:dgtusb/protocol/commands/SendReset.dart';
+import 'package:dgtusb/protocol/commands/SendUpdate.dart';
 import 'package:dgtusb/protocol/commands/SendUpdateBoard.dart';
+import 'package:dgtusb/protocol/commands/SendUpdateNice.dart';
 import 'package:usb_serial/usb_serial.dart';
 
 class DGTBoard {
@@ -143,8 +145,19 @@ class DGTBoard {
    * Board Modes - Sets the board to the desired mode
    */
 
-  Future<void> setBoardToUpdateMode() async {
+  /// Board will notify on board events
+  Future<void> setBoardToUpdateBoardMode() async {
     await SendUpdateBoardCommand().send(_port);
+  }
+
+  /// Board will notify on board and clock events
+  Future<void> setBoardToUpdateMode() async {
+    await SendUpdateCommand().send(_port);
+  }
+
+  /// Board will notify on board and clock events
+  Future<void> setBoardToUpdateNiceMode() async {
+    await SendUpdateNiceCommand().send(_port);
   }
 
   Stream<FieldUpdate> getBoardUpdateStream() {
