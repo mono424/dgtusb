@@ -8,6 +8,7 @@ import 'package:dgtusb/models/ClockMessage.dart';
 import 'package:dgtusb/models/FieldUpdate.dart';
 import 'package:dgtusb/models/Piece.dart';
 import 'package:dgtusb/protocol/ClockAnswer.dart';
+import 'package:dgtusb/protocol/ClockAnswerType.dart';
 import 'package:dgtusb/protocol/commands/FieldUpdate.dart';
 import 'package:dgtusb/protocol/commands/GetBoard.dart';
 import 'package:dgtusb/protocol/commands/GetClockInfo.dart';
@@ -35,6 +36,9 @@ class DGTBoard {
   Map<String, Piece> _boardState;
   Map<String, Piece> _lastSeen;
 
+  int _lastClockMode = null;
+  String _lastClockVersion = null;
+
   DGTBoard(this._port);
 
   Future<void> init() async {
@@ -45,6 +49,14 @@ class DGTBoard {
     _inputStreamController = new StreamController<DGTMessage>();
     _inputStream = _inputStreamController.stream.asBroadcastStream();
     await reset();
+  }
+
+  void _handleClockUpdate(ClockMessage update) {
+    if (update is ClockModeMessage) {
+      this._lastClockMode = update.mode;
+    } else if (update is ClockVersionMessage) {
+      this._lastClockVersion = update.version;
+    }
   }
 
   void _handleBoardUpdate(DetailedFieldUpdate update) {
@@ -98,6 +110,7 @@ class DGTBoard {
     _boardState = await GetBoardCommand().request(_port, _inputStream);
     _lastSeen = getBoardState();
     getBoardDetailedUpdateStream().listen(_handleBoardUpdate);
+    getClockUpdateStream().listen(_handleClockUpdate);
   }
 
   String getSerialNumber() {
@@ -106,6 +119,14 @@ class DGTBoard {
 
   String getVersion() {
     return _version;
+  }
+
+  int getLastClockMode() {
+    return _lastClockMode;
+  }
+
+  String getLastClockVersion() {
+    return _lastClockVersion;
   }
 
   Map<String, Piece> getBoardState() {
@@ -130,16 +151,16 @@ class DGTBoard {
     return GetClockVersionCommand().request(_port, _inputStream);
   }
 
-  void clockBeep(Duration duration) {
-    SendClockBeepCommand(duration).send(_port);
+  Future<ClockMessage> clockBeep(Duration duration) {
+    return SendClockBeepCommand(duration).request(_port, _inputStream);
   }
   
-  void clockSet(Duration timeLeft, Duration timeRight, bool leftIsRunning, bool rightIsRunning, bool pause, bool toggleOnLever) {
-    SendClockSetCommand(timeLeft, timeRight, leftIsRunning, rightIsRunning, pause, toggleOnLever).send(_port);
+  Future<ClockMessage> clockSet(Duration timeLeft, Duration timeRight, bool leftIsRunning, bool rightIsRunning, bool pause, bool toggleOnLever) {
+    return SendClockSetCommand(timeLeft, timeRight, leftIsRunning, rightIsRunning, pause, toggleOnLever).request(_port, _inputStream);
   }
   
-  void clockText(String text, { Duration beep = Duration.zero}) {
-    SendClockAsciiCommand(text, beep).send(_port);
+  Future<ClockMessage> clockText(String text, { Duration beep = Duration.zero}) {
+    return SendClockAsciiCommand(text, beep).request(_port, _inputStream);
   }
 
   /*

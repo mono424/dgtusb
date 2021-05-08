@@ -1,11 +1,12 @@
 import 'dart:typed_data';
 
-import 'package:dgtusb/protocol/Answer.dart';
+import 'package:dgtusb/protocol/ClockAnswerType.dart';
 import 'package:dgtusb/protocol/ClockCommand.dart';
 
-class SendClockSetCommand extends ClockCommand<void> {
+class SendClockSetCommand extends ClockCommand {
   final int code = 0x0a;
-  final Answer<void> answer = null;
+  final ClockAnswerType answerType = ClockAnswerType.setNRunAck;
+
   final Duration timeLeft;
   final Duration timeRight;
   final bool leftIsRunning;
