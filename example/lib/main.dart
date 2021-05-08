@@ -1,5 +1,7 @@
 import 'package:dgtusb/models/FieldUpdate.dart';
-import 'package:dgtusb/models/ClockInfo.dart';
+import 'package:dgtusb/models/ClockMessage.dart';
+import 'package:dgtusb/protocol/ClockAnswerType.dart';
+import 'package:dgtusb/protocol/ClockButton.dart';
 import 'package:flutter/material.dart';
 import 'package:dgtusb/dgtusb.dart';
 import 'package:usb_serial/usb_serial.dart';
@@ -30,8 +32,10 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   DGTBoard connectedBoard;
+  ClockInfoMessage lastClockInfo;
+  List<ClockMessage> lastClockAcks = [];
+  List<ClockButton> lastClockButtons = [];
 
-  ClockInfo _clockInfo;
   TextEditingController _clockAsciiTextController = new TextEditingController();
 
   void connect() async {
@@ -84,13 +88,6 @@ class _MyHomePageState extends State<MyHomePage> {
     });
 
     connectedBoard.clockText(text, beep: Duration(milliseconds: 200));
-  }
-
-  void _getClockInfo() async {
-    ClockInfo clockInfo = await connectedBoard.getClockInfo();
-    setState(() {
-      _clockInfo = clockInfo;
-    });
   }
 
   void _sendClockBeep() {
@@ -146,29 +143,52 @@ class _MyHomePageState extends State<MyHomePage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                TextButton(child: Text("Get Info"), onPressed: () => _getClockInfo()),
                 TextButton(child: Text("Send Beep"), onPressed: () => _sendClockBeep()),
                 TextButton(child: Text("Test Set 1"), onPressed: () => _testSetClock1()),
                 TextButton(child: Text("Send Text"), onPressed: () => _showClockAsciiDialog(context))
               ],
             ),
           ] : []),
-          ...(_clockInfo != null ? [
-              Text("Clock Connected: " + (_clockInfo.flags.clockConnected ? "Yes" : "No")),
-              Text("Clock Running: " + (_clockInfo.flags.clockRunning ? "Yes" : "No")),
-              Text("Clock lever: " + (_clockInfo.flags.rightHigh ? "Left" : "Right")),
-              Text("Clock Battery: " + (_clockInfo.flags.batteryLow ? "Low" : "Normal")),
-              Text("Clock LeftToMove: " + (_clockInfo.flags.leftToMove ? "Yes" : "No")),
-              Text("Clock RightToMove: " + (_clockInfo.flags.rightToMove ? "Yes" : "No")),
-              Text("Clock Left Player Time: " + _clockInfo.left.time.toString()),
-              Text("Clock Left Player FinalFlag: " + (_clockInfo.left.flags.finalFlag ? "Yes" : "No")),
-              Text("Clock Left Player FlagFlag: " + (_clockInfo.left.flags.flag ? "Yes" : "No")),
-              Text("Clock Left Player TimePerMoveFlag: " + (_clockInfo.left.flags.timePerMove ? "Yes" : "No")),
-              Text("Clock Right Player Time: " + _clockInfo.right.time.toString()),
-              Text("Clock Right Player FinalFlag: " + (_clockInfo.right.flags.finalFlag ? "Yes" : "No")),
-              Text("Clock Right Player FlagFlag: " + (_clockInfo.right.flags.flag ? "Yes" : "No")),
-              Text("Clock Right Player TimePerMoveFlag: " + (_clockInfo.right.flags.timePerMove ? "Yes" : "No")),
-          ] : [])
+          Center(child: StreamBuilder(
+            stream: connectedBoard?.getClockUpdateStream(),
+            builder: (context, AsyncSnapshot<ClockMessage> snapshot) {
+              if (!snapshot.hasData) return Text("-");
+
+              ClockMessage message = snapshot.data;
+              if (message.type == ClockAnswerType.info) {
+                lastClockInfo = message;
+              } else {
+                lastClockAcks.add(message);
+                if (message is ClockButtonMessage) {
+                  lastClockButtons.add(message.button);
+                }
+              }
+
+              if (lastClockInfo == null) return Text("-");
+
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                    Text("Clock Acks(last): " + (lastClockAcks.isNotEmpty ? lastClockAcks.last.type.toString() : "-")),
+                    Text("Clock Connected: " + (lastClockInfo.clockFlags.clockConnected ? "Yes" : "No")),
+                    Text("Clock Running: " + (lastClockInfo.clockFlags.clockRunning ? "Yes" : "No")),
+                    Text("Clock lever: " + (lastClockInfo.clockFlags.rightHigh ? "Left" : "Right")),
+                    Text("Clock Battery: " + (lastClockInfo.clockFlags.batteryLow ? "Low" : "Normal")),
+                    Text("Clock LeftToMove: " + (lastClockInfo.clockFlags.leftToMove ? "Yes" : "No")),
+                    Text("Clock RightToMove: " + (lastClockInfo.clockFlags.rightToMove ? "Yes" : "No")),
+                    Text("Clock Left Player Time: " + lastClockInfo.left.time.toString()),
+                    Text("Clock Left Player FinalFlag: " + (lastClockInfo.left.flags.finalFlag ? "Yes" : "No")),
+                    Text("Clock Left Player FlagFlag: " + (lastClockInfo.left.flags.flag ? "Yes" : "No")),
+                    Text("Clock Left Player TimePerMoveFlag: " + (lastClockInfo.left.flags.timePerMove ? "Yes" : "No")),
+                    Text("Clock Right Player Time: " + lastClockInfo.right.time.toString()),
+                    Text("Clock Right Player FinalFlag: " + (lastClockInfo.right.flags.finalFlag ? "Yes" : "No")),
+                    Text("Clock Right Player FlagFlag: " + (lastClockInfo.right.flags.flag ? "Yes" : "No")),
+                    Text("Clock Right Player TimePerMoveFlag: " + (lastClockInfo.right.flags.timePerMove ? "Yes" : "No")),
+                    Text("Clock Buttons pressed(last): " + (lastClockButtons.isNotEmpty ? lastClockButtons.last.toString() : "-")),
+                ],
+              );
+            }
+          )),
         ],
       ),
     );

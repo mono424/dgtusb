@@ -4,9 +4,10 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:dgtusb/dgtdecode.dart';
-import 'package:dgtusb/models/ClockInfo.dart';
+import 'package:dgtusb/models/ClockMessage.dart';
 import 'package:dgtusb/models/FieldUpdate.dart';
 import 'package:dgtusb/models/Piece.dart';
+import 'package:dgtusb/protocol/ClockAnswer.dart';
 import 'package:dgtusb/protocol/commands/FieldUpdate.dart';
 import 'package:dgtusb/protocol/commands/GetBoard.dart';
 import 'package:dgtusb/protocol/commands/GetClockInfo.dart';
@@ -114,7 +115,7 @@ class DGTBoard {
     return clone;
   }
 
-  Future<ClockInfo> getClockInfo() {
+  Future<ClockInfoMessage> getClockInfo() {
     return GetClockInfoCommand().request(_port, _inputStream);
   }
 
@@ -125,7 +126,7 @@ class DGTBoard {
   /*
    * Todo: its not working somehow
    */
-  Future<String> getClockVersion() async {
+  Future<ClockVersionMessage> getClockVersion() async {
     return GetClockVersionCommand().request(_port, _inputStream);
   }
 
@@ -158,6 +159,13 @@ class DGTBoard {
   /// Board will notify on board and clock events
   Future<void> setBoardToUpdateNiceMode() async {
     await SendUpdateNiceCommand().send(_port);
+  }
+
+  Stream<ClockMessage> getClockUpdateStream() {
+    return getInputStream()
+        .where(
+            (DGTMessage msg) => msg.getCode() == ClockAnswer().code)
+        .map((DGTMessage msg) => ClockAnswer().process(msg.getMessage()));
   }
 
   Stream<FieldUpdate> getBoardUpdateStream() {

@@ -1,15 +1,15 @@
 import 'dart:typed_data';
 
-import 'package:dgtusb/models/ClockInfo.dart';
+import 'package:dgtusb/models/ClockMessage.dart';
 import 'package:dgtusb/protocol/Answer.dart';
 import 'package:dgtusb/protocol/Command.dart';
 
-class GetClockInfoCommand extends Command<ClockInfo> {
+class GetClockInfoCommand extends Command<ClockInfoMessage> {
   final int code = 0x41;
-  final Answer<ClockInfo> answer = GetClockInfoAnswer();
+  final Answer<ClockInfoMessage> answer = GetClockInfoAnswer();
 }
 
-class GetClockInfoAnswer extends Answer<ClockInfo> {
+class GetClockInfoAnswer extends Answer<ClockInfoMessage> {
   final int code = 0x0d;
 
   @override
@@ -20,7 +20,8 @@ class GetClockInfoAnswer extends Answer<ClockInfo> {
     ClockSideStatusFlags rightFlags = parseClockSideStatusFlags((msg[0] & 0xf0) >> 4);
     Duration rightTime = Duration(hours: (msg[0] & 0x0f), minutes: decodeBcd(msg[1]), seconds: decodeBcd(msg[2]));
 
-    return ClockInfo(
+    return ClockInfoMessage(
+      null,
       ClockSideInfo(leftTime, leftFlags),
       ClockSideInfo(rightTime, rightFlags),
       parseClockStatusFlags(msg[6]),
