@@ -23,7 +23,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  dgtusb: ^0.0.1+1
+  dgtusb: 
+    path: ../
   usb_serial: ^0.2.4
 
 
