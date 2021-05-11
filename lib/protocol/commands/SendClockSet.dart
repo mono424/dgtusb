@@ -17,8 +17,8 @@ class SendClockSetCommand extends ClockCommand {
 
   SendClockSetCommand(this.timeLeft, this.timeRight, this.leftIsRunning, this.rightIsRunning, this.pause, this.toggleOnLever);
 
-  Future<Uint8List> data() async {
-    return Uint8List.fromList([
+  Future<List<int>> data() async {
+    return [
       (timeLeft.inHours),
       (timeLeft.inMinutes % 60),
       (timeLeft.inSeconds % 60),
@@ -26,6 +26,6 @@ class SendClockSetCommand extends ClockCommand {
       (timeRight.inMinutes % 60),
       (timeRight.inSeconds % 60),
       ((leftIsRunning ? 0x01 : 0x00) | (rightIsRunning ? 0x02 : 0x00) | (pause ? 0x04 : 0x00) | (toggleOnLever ? 0x08 : 0x00))
-    ]);
+    ];
   }
 }

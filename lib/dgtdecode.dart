@@ -1,13 +1,11 @@
 library dgtusb;
 
-import 'dart:typed_data';
-
 class DGTMessage {
   int _code;
   int _length;
-  Uint8List _message;
+  List<int> _message;
 
-  DGTMessage.parse(Uint8List message) {
+  DGTMessage.parse(List<int> message) {
     if (message.length < 3) throw DGTMessageToShortException();
 
     int code = message[0], sizeMsb = message[1], sizeLsb = message[2];
@@ -31,7 +29,7 @@ class DGTMessage {
     return _length;
   }
 
-  Uint8List getMessage() {
+  List<int> getMessage() {
     return _message;
   }
 }

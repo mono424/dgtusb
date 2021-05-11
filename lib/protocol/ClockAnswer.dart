@@ -9,7 +9,7 @@ import 'package:dgtusb/protocol/commands/GetClockInfo.dart';
 class ClockAnswer extends Answer<ClockMessage> {
   int code = 0x0d;
 
-  ClockMessage process(Uint8List msg) {
+  ClockMessage process(List<int> msg) {
     if (!isAck(msg)) return GetClockInfoAnswer().process(msg);
     int msg0 = ((msg[1] & 0x7f) | ((msg[3] << 3) & 0x80));
     int msg1 = ((msg[2] & 0x7f) | ((msg[3] << 2) & 0x80));
@@ -54,7 +54,7 @@ class ClockAnswer extends Answer<ClockMessage> {
     }
   }
 
-  static bool isAck(Uint8List msg) {
+  static bool isAck(List<int> msg) {
     return (msg[0] & 0x0f) == 0x0a || (msg[3] & 0x0f) == 0x0a;
   }
 }

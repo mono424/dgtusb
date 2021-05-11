@@ -13,7 +13,7 @@ class GetSerialNumberCommand extends Command<String> {
 class GetSerialNumberAnswer extends Answer<String> {
   final int code = 0x11;
 
-  String process(Uint8List msg) {
+  String process(List<int> msg) {
     return utf8.decode(msg);
   }
 }

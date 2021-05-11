@@ -1,5 +1,3 @@
-import 'dart:typed_data';
-
 import 'package:dgtusb/dgtdecode.dart';
 import 'package:dgtusb/models/ClockMessage.dart';
 import 'package:dgtusb/protocol/Answer.dart';
@@ -15,23 +13,23 @@ abstract class ClockCommand extends Command<ClockMessage> {
   
   ClockAnswerType answerType;
 
-  Future<Uint8List> data() async {
-    return Uint8List.fromList([]);
+  Future<List<int>> data() async {
+    return [];
   }
 
-  Future<Uint8List> messageBuilder() async {
+  Future<List<int>> messageBuilder() async {
     int code = this.code;
-    Uint8List data = await this.data();
+    List<int> data = await this.data();
     int msgLen = data.length + 3;
 
-    return Uint8List.fromList([
+    return [
       _clockMessageFlag, 
       msgLen,
       _startFlag,
       code, /* the clock message id */
       ...data,
       _endFlag
-    ]);
+    ];
   }
   
   Future<ClockMessage> getReponse(Stream<DGTMessage> inputStream) async {

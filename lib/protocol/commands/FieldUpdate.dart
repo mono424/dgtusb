@@ -7,7 +7,7 @@ import 'package:dgtusb/protocol/DGTProtocol.dart';
 class FieldUpdateAnswer extends Answer<FieldUpdate> {
   final int code = 0x0e;
 
-  FieldUpdate process(Uint8List msg) {
+  FieldUpdate process(List<int> msg) {
     return FieldUpdate(
         field: DGTProtocol.squares[msg[0]], piece: DGTProtocol.PIECES[msg[1]]);
   }

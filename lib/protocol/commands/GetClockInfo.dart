@@ -13,7 +13,7 @@ class GetClockInfoAnswer extends Answer<ClockInfoMessage> {
   final int code = 0x0d;
 
   @override
-  process(Uint8List msg) {
+  process(List<int> msg) {
     ClockSideStatusFlags leftFlags = parseClockSideStatusFlags((msg[3] & 0xf0) >> 4);
     Duration leftTime = Duration(hours: (msg[3] & 0x0f), minutes: decodeBcd(msg[4]), seconds: decodeBcd(msg[5]));
 

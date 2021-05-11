@@ -11,8 +11,8 @@ class SendClockBeepCommand extends ClockCommand {
 
   SendClockBeepCommand(this._duration);
 
-  Future<Uint8List> data() async {
+  Future<List<int>> data() async {
     // The time in multiplies of 64ms(16*64=1024ms).
-    return Uint8List.fromList([(_duration.inMilliseconds ~/ 64)]);
+    return [(_duration.inMilliseconds ~/ 64)];
   }
 }

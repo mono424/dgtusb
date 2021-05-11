@@ -11,7 +11,7 @@ class GetVersionCommand extends Command<String> {
 class GetVersionAnswer extends Answer<String> {
   final int code = 0x13;
 
-  String process(Uint8List msg) {
+  String process(List<int> msg) {
     return msg[0].toString() + '.' + msg[1].toString();
   }
 }

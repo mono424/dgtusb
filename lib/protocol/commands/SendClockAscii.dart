@@ -1,5 +1,3 @@
-import 'dart:typed_data';
-
 import 'package:dgtusb/protocol/ClockAnswerType.dart';
 import 'package:dgtusb/protocol/ClockCommand.dart';
 
@@ -11,11 +9,11 @@ class SendClockAsciiCommand extends ClockCommand {
 
   SendClockAsciiCommand(this.text, this.beep);
 
-  Future<Uint8List> data() async {
+  Future<List<int>> data() async {
     String eightByteText = text.padRight(8, " ").substring(0, 8);
-    return Uint8List.fromList([
+    return [
       ...Iterable.generate(8, (x) => eightByteText.codeUnitAt(x)),
       (beep.inMilliseconds ~/ 64)
-    ]);
+    ];
   }
 }

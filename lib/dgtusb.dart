@@ -1,7 +1,6 @@
 library dgtusb;
 
 import 'dart:async';
-import 'dart:typed_data';
 
 import 'package:dgtusb/dgtdecode.dart';
 import 'package:dgtusb/models/ClockMessage.dart';
@@ -68,7 +67,7 @@ class DGTBoard {
     }
   }
 
-  void _handleInputStream(Uint8List chunk) {
+  void _handleInputStream(List<int> chunk) {
     print("received chunk ...");
     if (_buffer == null)
       _buffer = chunk.toList();
@@ -76,7 +75,7 @@ class DGTBoard {
       _buffer.addAll(chunk);
 
     try {
-      DGTMessage message = DGTMessage.parse(Uint8List.fromList(_buffer));
+      DGTMessage message = DGTMessage.parse(_buffer);
       _inputStreamController.add(message);
       _buffer.removeRange(0, message.getLength());
     } on DGTInvalidMessageException {
