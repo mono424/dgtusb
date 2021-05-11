@@ -9,6 +9,6 @@ class FieldUpdateAnswer extends Answer<FieldUpdate> {
 
   FieldUpdate process(Uint8List msg) {
     return FieldUpdate(
-        field: DGTProtocol.SQUARES[msg[0]], piece: DGTProtocol.PIECES[msg[1]]);
+        field: DGTProtocol.squares[msg[0]], piece: DGTProtocol.PIECES[msg[1]]);
   }
 }

@@ -1,7 +1,10 @@
 import 'package:dgtusb/models/Piece.dart';
 
 abstract class DGTProtocol {
-  static const List<String> SQUARES = [
+  static bool reverseBoardOrientation = false;
+  static List<String> get squares => reverseBoardOrientation ? _SQUARES.reversed.toList() : _SQUARES;
+
+  static const List<String> _SQUARES = [
     'h1',
     'g1',
     'f1',

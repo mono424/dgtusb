@@ -17,7 +17,7 @@ class GetBoardAnswer extends Answer<Map<String, Piece>> {
   Map<String, Piece> process(Uint8List msg) {
     Map<String, Piece> board = Map<String, Piece>();
     for (int i = 0; i < 64; i++) {
-      board[DGTProtocol.SQUARES[i]] = DGTProtocol.PIECES[msg[i]];
+      board[DGTProtocol.squares[i]] = DGTProtocol.PIECES[msg[i]];
     }
     return board;
   }

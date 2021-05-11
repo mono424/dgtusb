@@ -8,6 +8,7 @@ import 'package:dgtusb/models/ClockMessage.dart';
 import 'package:dgtusb/models/FieldUpdate.dart';
 import 'package:dgtusb/models/Piece.dart';
 import 'package:dgtusb/protocol/ClockAnswer.dart';
+import 'package:dgtusb/protocol/DGTProtocol.dart';
 import 'package:dgtusb/protocol/commands/FieldUpdate.dart';
 import 'package:dgtusb/protocol/commands/GetBoard.dart';
 import 'package:dgtusb/protocol/commands/GetClockInfo.dart';
@@ -126,9 +127,6 @@ class DGTBoard {
    * DGT Clock
    */
 
-  /*
-   * Todo: its not working somehow
-   */
   Future<ClockVersionMessage> getClockVersion() async {
     return GetClockVersionCommand().request(_port, _inputStream);
   }
@@ -148,6 +146,25 @@ class DGTBoard {
   /*
    * Board Modes - Sets the board to the desired mode
    */
+
+  /// Reverse Board orientation
+  void setBoardOrientation(bool reversed) async {
+    bool prevOrientation = DGTProtocol.reverseBoardOrientation;
+    if (prevOrientation != reversed) {
+      List<String> oldSquares = DGTProtocol.squares;
+      Map<String, Piece> oldBoardState = getBoardState();
+      Map<String, Piece> newBoardState = {};
+
+      DGTProtocol.reverseBoardOrientation = reversed;
+      List<String> newSquares = DGTProtocol.squares;
+
+      for (var i = 0; i < newSquares.length; i++) {
+        newBoardState[newSquares[i]] = oldBoardState[oldSquares[i]];
+      }
+
+      _boardState = newBoardState;
+    }
+  }
 
   /// Board will notify on board events
   Future<void> setBoardToUpdateBoardMode() async {
