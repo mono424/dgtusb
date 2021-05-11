@@ -22,13 +22,18 @@ import 'package:dgtusb/protocol/commands/SendReset.dart';
 import 'package:dgtusb/protocol/commands/SendUpdate.dart';
 import 'package:dgtusb/protocol/commands/SendUpdateBoard.dart';
 import 'package:dgtusb/protocol/commands/SendUpdateNice.dart';
-import 'package:usb_serial/usb_serial.dart';
+import 'package:flutter_blue/flutter_blue.dart';
 
 class DGTBoard {
-  final UsbPort _port;
+  static const String SERVICE_UUID = "0000ffe0-0000-1000-8000-00805f9b34fb";
+  static const String CHARACTERISTICS_UUID = "0000ffe1-0000-1000-8000-00805f9b34fb";
+
+  final BluetoothDevice _port;
+  BluetoothService _service;
+  BluetoothCharacteristic _characteristic;
+
   StreamController _inputStreamController;
   Stream<DGTMessage> _inputStream;
-
   List<int> _buffer;
 
   String _serialNumber;
@@ -39,10 +44,14 @@ class DGTBoard {
   DGTBoard(this._port);
 
   Future<void> init() async {
-    if (!(await _port.open())) {
-      throw new Exception("Failed to open port.");
-    }
-    _port.inputStream.listen(_handleInputStream);
+    await _port.connect();
+    
+    List<BluetoothService> services = await _port.discoverServices();
+    _service = services.where((s) => s.uuid.toString() == SERVICE_UUID).first;
+    _characteristic = _service.characteristics.where((s) => s.uuid.toString() == CHARACTERISTICS_UUID).first;
+    await _characteristic.setNotifyValue(true);
+
+    _characteristic.value.listen(_handleInputStream);
     _inputStreamController = new StreamController<DGTMessage>();
     _inputStream = _inputStreamController.stream.asBroadcastStream();
     await reset();
@@ -95,10 +104,10 @@ class DGTBoard {
   }
 
   Future<void> reset() async {
-    await SendResetCommand().send(_port);
-    _serialNumber = await GetSerialNumberCommand().request(_port, _inputStream);
-    _version = await GetVersionCommand().request(_port, _inputStream);
-    _boardState = await GetBoardCommand().request(_port, _inputStream);
+    await SendResetCommand().send(_characteristic);
+    _serialNumber = await GetSerialNumberCommand().request(_characteristic, _inputStream);
+    _version = await GetVersionCommand().request(_characteristic, _inputStream);
+    _boardState = await GetBoardCommand().request(_characteristic, _inputStream);
     _lastSeen = getBoardState();
     getBoardDetailedUpdateStream().listen(_handleBoardUpdate);
     getClockUpdateStream().listen(_handleClockUpdate);
@@ -120,7 +129,7 @@ class DGTBoard {
   }
 
   Future<ClockInfoMessage> getClockInfo() {
-    return GetClockInfoCommand().request(_port, _inputStream);
+    return GetClockInfoCommand().request(_characteristic, _inputStream);
   }
 
   /*
@@ -128,19 +137,19 @@ class DGTBoard {
    */
 
   Future<ClockVersionMessage> getClockVersion() async {
-    return GetClockVersionCommand().request(_port, _inputStream);
+    return GetClockVersionCommand().request(_characteristic, _inputStream);
   }
 
   Future<ClockMessage> clockBeep(Duration duration) {
-    return SendClockBeepCommand(duration).request(_port, _inputStream);
+    return SendClockBeepCommand(duration).request(_characteristic, _inputStream);
   }
   
   Future<ClockMessage> clockSet(Duration timeLeft, Duration timeRight, bool leftIsRunning, bool rightIsRunning, bool pause, bool toggleOnLever) {
-    return SendClockSetCommand(timeLeft, timeRight, leftIsRunning, rightIsRunning, pause, toggleOnLever).request(_port, _inputStream);
+    return SendClockSetCommand(timeLeft, timeRight, leftIsRunning, rightIsRunning, pause, toggleOnLever).request(_characteristic, _inputStream);
   }
   
   Future<ClockMessage> clockText(String text, { Duration beep = Duration.zero}) {
-    return SendClockAsciiCommand(text, beep).request(_port, _inputStream);
+    return SendClockAsciiCommand(text, beep).request(_characteristic, _inputStream);
   }
 
   /*
@@ -168,17 +177,17 @@ class DGTBoard {
 
   /// Board will notify on board events
   Future<void> setBoardToUpdateBoardMode() async {
-    await SendUpdateBoardCommand().send(_port);
+    await SendUpdateBoardCommand().send(_characteristic);
   }
 
   /// Board will notify on board and clock events
   Future<void> setBoardToUpdateMode() async {
-    await SendUpdateCommand().send(_port);
+    await SendUpdateCommand().send(_characteristic);
   }
 
   /// Board will notify on board and clock events
   Future<void> setBoardToUpdateNiceMode() async {
-    await SendUpdateNiceCommand().send(_port);
+    await SendUpdateNiceCommand().send(_characteristic);
   }
 
   Stream<ClockMessage> getClockUpdateStream() {

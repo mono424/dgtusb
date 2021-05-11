@@ -2,7 +2,7 @@ import 'dart:typed_data';
 
 import 'package:dgtusb/dgtdecode.dart';
 import 'package:dgtusb/protocol/Answer.dart';
-import 'package:usb_serial/usb_serial.dart';
+import 'package:flutter_blue/flutter_blue.dart';
 
 abstract class Command<T> {
   int code;
@@ -12,13 +12,13 @@ abstract class Command<T> {
     return Uint8List.fromList([code]);
   }
 
-  Future<void> send(UsbPort port) async {
-    await port.write(await messageBuilder());
+  Future<void> send(BluetoothCharacteristic characteristic) async {
+    await characteristic.write(await messageBuilder());
   }
 
-  Future<T> request(UsbPort port, Stream<DGTMessage> inputStream) async {
+  Future<T> request(BluetoothCharacteristic characteristic, Stream<DGTMessage> inputStream) async {
     Future<T> result = getReponse(inputStream);
-    await send(port);
+    await send(characteristic);
     return result;
   }
 

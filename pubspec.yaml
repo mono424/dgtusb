@@ -8,7 +8,7 @@ environment:
   flutter: ">=1.17.0"
 
 dependencies:
-  usb_serial: ^0.2.4
+  flutter_blue: ^0.8.0
   flutter:
     sdk: flutter
 

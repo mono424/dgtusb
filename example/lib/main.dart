@@ -4,7 +4,7 @@ import 'package:dgtusb/protocol/ClockAnswerType.dart';
 import 'package:dgtusb/protocol/ClockButton.dart';
 import 'package:flutter/material.dart';
 import 'package:dgtusb/dgtusb.dart';
-import 'package:usb_serial/usb_serial.dart';
+import 'package:flutter_blue/flutter_blue.dart';
 
 void main() {
   runApp(MyApp());
@@ -31,6 +31,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  FlutterBlue flutterBlue = FlutterBlue.instance;
   DGTBoard connectedBoard;
   ClockInfoMessage lastClockInfo;
   List<ClockMessage> lastClockAcks = [];
@@ -39,26 +40,24 @@ class _MyHomePageState extends State<MyHomePage> {
   TextEditingController _clockAsciiTextController = new TextEditingController();
 
   void connect() async {
-    List<UsbDevice> devices = await UsbSerial.listDevices();
-    List<UsbDevice> dgtDevices = devices.where((d) => d.vid == 1115).toList();
+    ScanResult res = await flutterBlue.scan().where((ScanResult sc) => sc.device.name.toLowerCase() == "dgt board").first;
+    BluetoothDevice device = res.device;
 
-    if (dgtDevices.length > 0) {
-      // connect to board and initialize
-      DGTBoard nBoard = new DGTBoard(await dgtDevices[0].create());
-      await nBoard.init();
-      print("DGTBoard connected - SerialNumber: " +
-          nBoard.getSerialNumber() +
-          " Version: " +
-          nBoard.getVersion());
+    // connect to board and initialize
+    DGTBoard nBoard = new DGTBoard(device);
+    await nBoard.init();
+    print("DGTBoard connected - SerialNumber: " +
+        nBoard.getSerialNumber() +
+        " Version: " +
+        nBoard.getVersion());
 
-      // set connected board
-      setState(() {
-        connectedBoard = nBoard;
-      });
+    // set connected board
+    setState(() {
+      connectedBoard = nBoard;
+    });
 
-      // set board to update mode
-      nBoard.setBoardToUpdateMode();
-    }
+    // set board to update mode
+    nBoard.setBoardToUpdateMode();
   }
 
   void _showClockAsciiDialog(context) async {
