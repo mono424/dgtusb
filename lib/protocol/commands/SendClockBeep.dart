@@ -1,11 +1,12 @@
 import 'dart:typed_data';
 
-import 'package:dgtusb/protocol/Answer.dart';
+import 'package:dgtusb/protocol/ClockAnswerType.dart';
 import 'package:dgtusb/protocol/ClockCommand.dart';
 
-class SendClockBeepCommand extends ClockCommand<void> {
+class SendClockBeepCommand extends ClockCommand {
   final int code = 0x0b;
-  final Answer<void> answer = null;
+  final ClockAnswerType answerType = ClockAnswerType.beepAck;
+
   final Duration _duration;
 
   SendClockBeepCommand(this._duration);

@@ -47,6 +47,8 @@ class DGTBoard {
     await reset();
   }
 
+  void _handleClockUpdate(ClockMessage update) {}
+
   void _handleBoardUpdate(DetailedFieldUpdate update) {
     if (update.action == FieldUpdateAction.setdown) {
       _boardState[update.field] = update.piece;
@@ -98,6 +100,7 @@ class DGTBoard {
     _boardState = await GetBoardCommand().request(_port, _inputStream);
     _lastSeen = getBoardState();
     getBoardDetailedUpdateStream().listen(_handleBoardUpdate);
+    getClockUpdateStream().listen(_handleClockUpdate);
   }
 
   String getSerialNumber() {
@@ -130,16 +133,16 @@ class DGTBoard {
     return GetClockVersionCommand().request(_port, _inputStream);
   }
 
-  void clockBeep(Duration duration) {
-    SendClockBeepCommand(duration).send(_port);
+  Future<ClockMessage> clockBeep(Duration duration) {
+    return SendClockBeepCommand(duration).request(_port, _inputStream);
   }
   
-  void clockSet(Duration timeLeft, Duration timeRight, bool leftIsRunning, bool rightIsRunning, bool pause, bool toggleOnLever) {
-    SendClockSetCommand(timeLeft, timeRight, leftIsRunning, rightIsRunning, pause, toggleOnLever).send(_port);
+  Future<ClockMessage> clockSet(Duration timeLeft, Duration timeRight, bool leftIsRunning, bool rightIsRunning, bool pause, bool toggleOnLever) {
+    return SendClockSetCommand(timeLeft, timeRight, leftIsRunning, rightIsRunning, pause, toggleOnLever).request(_port, _inputStream);
   }
   
-  void clockText(String text, { Duration beep = Duration.zero}) {
-    SendClockAsciiCommand(text, beep).send(_port);
+  Future<ClockMessage> clockText(String text, { Duration beep = Duration.zero}) {
+    return SendClockAsciiCommand(text, beep).request(_port, _inputStream);
   }
 
   /*

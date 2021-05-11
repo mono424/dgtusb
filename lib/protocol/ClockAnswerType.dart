@@ -1,1 +1,1 @@
-enum ClockAnswerType { info, displayAck, buttonAck, versionAck, setNRunAck, beepAck }
+enum ClockAnswerType { info, modeAck, displayAck, buttonAck, versionAck, setNRunAck, beepAck, unknown }

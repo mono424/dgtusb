@@ -10,8 +10,7 @@ class ClockAnswer extends Answer<ClockMessage> {
   int code = 0x0d;
 
   ClockMessage process(Uint8List msg) {
-    if (!isAck(msg)) return GetClockInfoAnswer().process(msg); 
-
+    if (!isAck(msg)) return GetClockInfoAnswer().process(msg);
     int msg0 = ((msg[1] & 0x7f) | ((msg[3] << 3) & 0x80));
     int msg1 = ((msg[2] & 0x7f) | ((msg[3] << 2) & 0x80));
     int msg2 = ((msg[4] & 0x7f) | ((msg[0] << 3) & 0x80));
@@ -27,6 +26,16 @@ class ClockAnswer extends Answer<ClockMessage> {
     switch(msg1) {
         case 0x01:
           return ClockMessage(ClockAnswerType.displayAck, flags);
+        case 0x08:
+          return ClockButtonMessage(flags, null);
+        case 0x09:
+          String version = (msg2 >> 4).toString() + '.' + (msg2 & 0x0f).toString();
+          return ClockVersionMessage(flags, version);
+          break;
+        case 0x0a:
+          return ClockMessage(ClockAnswerType.setNRunAck, flags);
+        case 0x0b:
+          return ClockMessage(ClockAnswerType.beepAck, flags);
         case 0x88:
           ClockButton pressedButton;
           switch(msg3) {
@@ -37,16 +46,11 @@ class ClockAnswer extends Answer<ClockMessage> {
               case 0x35: pressedButton = ClockButton.ok; break;
           }
           return ClockButtonMessage(flags, pressedButton);
-        case 0x09: 
-          String version = (msg2 >> 4).toString() + '.' + (msg2 & 0x0f).toString();
-          return ClockVersionMessage(flags, version);
-          break;
-        case 0x0a:
-          return ClockMessage(ClockAnswerType.setNRunAck, flags);
-        case 0x0b:
-          return ClockMessage(ClockAnswerType.beepAck, flags);
+        case 0x8a:
+        case 0x90:
+          return ClockModeMessage(flags, msg[3]);
         default:
-          return null;
+          return ClockMessage(ClockAnswerType.unknown, flags);
     }
   }
 

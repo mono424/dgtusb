@@ -8,7 +8,6 @@ abstract class Command<T> {
   int code;
   Answer<T> answer;
 
-
   Future<Uint8List> messageBuilder() async {
     return Uint8List.fromList([code]);
   }
