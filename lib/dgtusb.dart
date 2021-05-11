@@ -8,7 +8,6 @@ import 'package:dgtusb/models/ClockMessage.dart';
 import 'package:dgtusb/models/FieldUpdate.dart';
 import 'package:dgtusb/models/Piece.dart';
 import 'package:dgtusb/protocol/ClockAnswer.dart';
-import 'package:dgtusb/protocol/ClockAnswerType.dart';
 import 'package:dgtusb/protocol/commands/FieldUpdate.dart';
 import 'package:dgtusb/protocol/commands/GetBoard.dart';
 import 'package:dgtusb/protocol/commands/GetClockInfo.dart';
@@ -36,9 +35,6 @@ class DGTBoard {
   Map<String, Piece> _boardState;
   Map<String, Piece> _lastSeen;
 
-  int _lastClockMode = null;
-  String _lastClockVersion = null;
-
   DGTBoard(this._port);
 
   Future<void> init() async {
@@ -51,13 +47,7 @@ class DGTBoard {
     await reset();
   }
 
-  void _handleClockUpdate(ClockMessage update) {
-    if (update is ClockModeMessage) {
-      this._lastClockMode = update.mode;
-    } else if (update is ClockVersionMessage) {
-      this._lastClockVersion = update.version;
-    }
-  }
+  void _handleClockUpdate(ClockMessage update) {}
 
   void _handleBoardUpdate(DetailedFieldUpdate update) {
     if (update.action == FieldUpdateAction.setdown) {
@@ -119,14 +109,6 @@ class DGTBoard {
 
   String getVersion() {
     return _version;
-  }
-
-  int getLastClockMode() {
-    return _lastClockMode;
-  }
-
-  String getLastClockVersion() {
-    return _lastClockVersion;
   }
 
   Map<String, Piece> getBoardState() {
