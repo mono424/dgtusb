@@ -1,6 +1,6 @@
 name: dgtusb
 description: A new Flutter package which allow you to easily connect your DGT Chess Board and lets you communicate with it
-version: 0.0.1+3
+version: 0.0.1+4
 repository: https://github.com/mono424/dgtusb
 
 environment:
