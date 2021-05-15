@@ -42,7 +42,7 @@ class DGTBoard {
 
   DGTBoard(this._port);
 
-  Future<void> init() async {
+  Future<void> init({ Duration initialDelay = const Duration(milliseconds: 300) }) async {
     await _port.connect();
     
     List<BluetoothService> services = await _port.discoverServices();
@@ -53,6 +53,8 @@ class DGTBoard {
     _characteristic.value.listen(_handleInputStream);
     _inputStreamController = new StreamController<DGTMessage>();
     _inputStream = _inputStreamController.stream.asBroadcastStream();
+
+    await Future.delayed(initialDelay);
     await reset();
   }
 
@@ -69,6 +71,7 @@ class DGTBoard {
 
   void _handleInputStream(List<int> chunk) {
     print("received chunk ...");
+    print(chunk);
     if (_buffer == null)
       _buffer = chunk.toList();
     else
